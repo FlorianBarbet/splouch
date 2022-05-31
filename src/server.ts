@@ -4,13 +4,12 @@ import express, {Express, RequestHandler, Router} from "express";
 
 
 export interface ApiRoute{
-    path: string,
     middlewares: RequestHandler[],
     router: RequestHandler,
     base: {
+        params: string[],
         methods: ('all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head')[] ,
         action: RequestHandler,
-        middlewares: RequestHandler[]
     } | null
 }
 
@@ -28,13 +27,16 @@ function register_global_middlewares(app: Express){
 function register_api_route(app: Express){
     type apiRouter  = ApiRoute & {file: string};
 
-    const inject = (parent:Router, route:apiRouter) => {
+    const inject = (parent:Router, route: apiRouter) => {
         if(!!route.base){
+            const uri = route.base.params.reduce((acc, curr) => `${acc}/:${curr}`, '');
             route.base.methods.forEach(method => {
-                (<any>route.router)[method.toLowerCase()]("/", route.base!.middlewares, route.base!.action);
+                registerIndex(path.join('middleware', route.file), (middleware:{run:RequestHandler}) => {
+                    (<any>route.router)[method.toLowerCase()](`${uri}`, middleware.run, route.base!.action)
+                });
             });
         }
-        parent.use(route.path, route.middlewares, route.router);
+        parent.use(`/${route.file}`, route.middlewares, route.router);
     }
 
     registerIndex('api',
@@ -59,10 +61,10 @@ function register<RegisterType>(dirname: string,
         fs.readdirSync(register_path)
             .forEach(file => {
                 const filepath = path.join(register_path, file);
-                console.debug(`Load controller : ${filepath}`);
+                console.debug(`Load : ${filepath}`);
                 const file_infos = fs.statSync(filepath);
                 if(filter(file_infos, file)){
-                    const register_stuff = require(path.join(register_path, file)).default;
+                    const register_stuff = require(filepath).default;
                     action({...register_stuff, file});
                 }
             });
