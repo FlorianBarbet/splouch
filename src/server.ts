@@ -1,7 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import express from "express";
-import {Express, RequestHandler, Router} from "express";
+import express, {Express, RequestHandler, Router} from "express";
 
 
 export interface ApiRoute{
