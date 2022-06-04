@@ -38,8 +38,8 @@ export namespace Registry{
             return inst;
         }
     }
-
-    export function Route(method: string, options?: RouteOptions){
+    type RouteMethod = 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
+    export function Route(method: RouteMethod, options?: RouteOptions){
         return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
             if(!target['routes'])  target['routes'] = [];
             target['routes'].push({method, action:descriptor.value, options});
@@ -77,7 +77,7 @@ export namespace Registry{
                 if(beanProperties.length > 0) instance.router?.use(..._format_middlewares(beanProperties));
                 Promise.all(
                     instance.routes!.map(route => {
-                        const uri = !!route.options?.subPath ? `${instance.path}${route.options.subPath}`:instance.path;
+                        const uri = !!route.options?.subPath ? `${instance.path}${route.options.subPath}` : instance.path;
                         const specific_middlewares = _format_middlewares(route.options?.middlewares || []);
                         (<any>instance.router!)[route.method.toLowerCase()](uri,  ...specific_middlewares, route.action());
                     })
@@ -91,6 +91,7 @@ export namespace Registry{
         const port = options?.port || 8000;
         
         server = app || express();
-        start_server = options?.start_server || (() => server.listen(port, () => console.log(`server is listening on ${port}`)));
+        start_server = options?.start_server
+            || (() => server.listen(port, () => console.log(`server is listening on ${port}`)));
     }
 }
