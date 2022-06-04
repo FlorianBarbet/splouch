@@ -1,13 +1,6 @@
-import {instance} from './server';
 import {Registry} from './registry';
-import './registry-example';
+import express from "express";
 import './wasm/wasm-loader';
+import './registry-example';
 
-
-const port = 8001;
-export const app = instance();
-Registry.use(app, {port});
-
-
-
-
+Registry.use(express(), {port:8000});

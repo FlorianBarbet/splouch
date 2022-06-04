@@ -7,10 +7,10 @@ import Route = Registry.Route;
 export class Toto {
     middlewares = ['GreetingService'];
 
-    @Route('get', {middlewares:['WowLogger']})
+    @Route('get', {middlewares:['WowLogger', 'splouch']})
     test(): RequestHandler {
         return (req, res) => {
-            return res.status(200).send(`${res.locals.format(res.locals.hello, 'Toto')}`);
+            return res.status(200).send(`${res.locals.format(res.locals.hello, 'Toto')} fib(21) = ${res.locals.fib(21)}`);
         }
     }
 }

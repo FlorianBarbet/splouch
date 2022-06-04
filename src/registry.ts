@@ -11,6 +11,7 @@ export interface Registry {
 }
 
 export interface Middleware {
+    service_name?: string
     run: (() => RequestHandler)[]
 }
 
@@ -33,7 +34,6 @@ export namespace Registry{
             inst.prototype['router'] = Router(options);
             inst.prototype['path'] = options?.path || `/${inst.name.toLowerCase()}`;
             beans[inst.name.toLowerCase()] = new inst();
-            console.debug(`${inst.name} registered as router`);
             _build_launcher();
             return inst;
         }
@@ -47,8 +47,9 @@ export namespace Registry{
     }
 
     export function Service<T extends Constructor<Middleware>>(inst: T) {
-        services[inst.name.toLowerCase()] = new inst();
-        console.debug(`${inst.name} registered as service`);
+        const instance = new inst();
+        const service_name = (instance.service_name || inst.name);
+        services[service_name.toLowerCase()] = instance;
         _build_launcher();
         return inst;
     }
@@ -70,6 +71,7 @@ export namespace Registry{
         if(!server) throw new Error('Express has not been settings up !');
         Object.keys(beans)
             .forEach(classname => {
+                console.debug(`Load Router: ${classname}...`);
                 const instance = beans[classname];
                 const beanProperties = instance.middlewares;
                 if(beanProperties.length > 0) instance.router?.use(..._format_middlewares(beanProperties));
@@ -81,6 +83,7 @@ export namespace Registry{
                     })
                 ).then(() => server!.use(instance.router!));
             });
+        console.debug('Loaded middlewares : \n', services);
         start_server();
     }
 
