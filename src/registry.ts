@@ -84,8 +84,10 @@ export namespace Registry{
         start_server();
     }
 
-    export function loadExpress(app:  Express, cb:() => void = () => server.listen(8000, () => console.log(`server is listening on ${8000}`))){
+    export function use(app?:  Express, options?:{port?: number, start_server?: () => void}){
+        const port = options?.port || 8000;
+        
         server = app || express();
-        start_server = cb;
+        start_server = options?.start_server || (() => server.listen(port, () => console.log(`server is listening on ${port}`)));
     }
 }
