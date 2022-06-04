@@ -28,11 +28,11 @@ function register_api_route(app: Express){
     type apiRouter  = ApiRoute & {file: string};
 
     const inject = (parent:Router, route: apiRouter) => {
-        if(!!route.base){
+        if(!!route.base) {
             const uri = route.base.params.reduce((acc, curr) => `${acc}/:${curr}`, '');
             route.base.methods.forEach(method => {
                 registerIndex(path.join('middleware', route.file), (middleware:{run:RequestHandler}) => {
-                    (<any>route.router)[method.toLowerCase()](`${uri}`, middleware.run, route.base!.action)
+                    (<any>route.router)[method.toLowerCase()](uri, middleware.run, route.base!.action)
                 });
             });
         }

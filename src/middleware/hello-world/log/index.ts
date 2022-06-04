@@ -1,8 +1,13 @@
 import {RequestHandler} from "express";
 
 export function log(): RequestHandler{
-    return (_req, _res, next) => {
+    return (_req, res, next) => {
         console.log('Hello world !');
+        res.locals.service = {
+            hi:() => {
+                console.log('Hi ho');
+            }
+        }
         next();
     }
 }
