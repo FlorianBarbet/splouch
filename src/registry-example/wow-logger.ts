@@ -8,7 +8,6 @@ export class WowLogger {
 
     wow(): RequestHandler {
         return (req, res, next) => {
-            console.log(`WoooW fib(21) = ${(<any>modules['splouch'].instance.exports).fib(21)}`);
             return next();
         }
     }

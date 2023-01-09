@@ -89,7 +89,7 @@ export namespace Registry{
 
     export function use(app?:  Express, options?:{port?: number, start_server?: () => void}){
         const port = options?.port || 8000;
-        
+
         server = app || express();
         start_server = options?.start_server
             || (() => server.listen(port, () => console.log(`server is listening on ${port}`)));

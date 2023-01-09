@@ -14,14 +14,15 @@ if(fs.existsSync(module_path))
     fs.readdirSync(module_path)
         .forEach(file => {
             const wasmBuffer = fs.readFileSync(path.join(module_path, file));
-            WebAssembly.instantiate(wasmBuffer).then(wasmModule => {
+            WebAssembly.instantiate(wasmBuffer, {wbg : {__wbindgen_string_new: () => "test"}}).then(wasmModule => {
                 const module_name = file.replace('_bg.wasm', '');
                 console.debug(`Load WebAssembly file : ${file}`);
-                modules[module_name] = wasmModule;
-                const function_names = Object.keys(wasmModule.instance.exports).filter(e => e !== 'memory');
+                // @ts-ignore
+                modules[module_name] = wasmModule.instance.exports.memory;
+                const function_names = Object.keys(wasmModule.instance.exports);
                 const exported: (() => RequestHandler)[] = function_names
                     .map(fn_name => {
-                        return () => (req, res, next) => {
+                        return () => (_req, res, next) => {
                             res.locals[fn_name] = wasmModule.instance.exports[fn_name];
                             return next();
                         };
