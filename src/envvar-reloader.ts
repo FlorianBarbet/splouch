@@ -19,7 +19,7 @@ emitter.on("onchange_envvar", () => {
     // let add some cast and unary operations.
     for(const key in parsed){
        const value = parsed[key];
-       if(value === 'true' || value === 'false') envvar[key] = value === 'true'
+       if(value.toLowerCase() === 'true' || value.toLowerCase() === 'false') envvar[key] = value === 'true'
        else {
            const numeric_value = +value
            envvar[key] = isNaN(numeric_value) ? value : numeric_value;
