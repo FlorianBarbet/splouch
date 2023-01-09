@@ -6,6 +6,7 @@ dotenv.config();
 
 let timeout: NodeJS.Timeout;
 const emitter = new EventEmitter();
+const envvar: {[name: string]:string|boolean|number} = {};
 fs.watch(".env", (event, filename) => {
     if(event === 'change'){
         clearTimeout(timeout);
@@ -14,9 +15,19 @@ fs.watch(".env", (event, filename) => {
 });
 
 emitter.on("onchange_envvar", () => {
-    dotenv.config({override: true});
-})
+    const {parsed} = dotenv.config({override: true});
+    // let add some cast and unary operations.
+    for(const key in parsed){
+       const value = parsed[key];
+       if(value === 'true' || value === 'false') envvar[key] = value === 'true'
+       else {
+           const numeric_value = +value
+           envvar[key] = isNaN(numeric_value) ? value : numeric_value;
+       }
+    }
+});
 
 export {
-    emitter
+    emitter,
+    envvar
 }
